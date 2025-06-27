@@ -9,16 +9,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
 
-  async function enviarNotificacaoTeste() {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: '🔔 Notificação de Teste',
-      body: 'Funcionou! Sua notificação está ativa.',
-      sound: true,
-    },
-    trigger: { seconds: 5} as Notifications.CalendarTriggerInput, // Notifica em 5 segundos
-  });
-}
+  
   return (
     
     <NavigationContainer>

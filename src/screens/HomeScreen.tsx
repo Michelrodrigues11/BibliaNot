@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, SafeAreaView, Button, GestureResponderEvent } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import versiculos from '../../data/versiculos.json'; // Ajuste o caminho se necessário
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // Configuração para exibir notificações mesmo com o app aberto
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,  // Mostra o banner enquanto o app está aberto
+    shouldShowList: true,    // Adiciona à central de notificações
     shouldPlaySound: true,
     shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
   }),
 });
+
 
 export default function HomeScreen({ navigation }: any) {
   const [versiculo, setVersiculo] = useState<string>('');
@@ -27,6 +27,7 @@ export default function HomeScreen({ navigation }: any) {
     const versiculoDoDia = versiculos[index];
 
     setVersiculo(versiculoDoDia);
+    salvarVersiculoNoHistorico(versiculoDoDia);
 
     registerForPushNotificationsAsync().then(() => {
       scheduleDailyNotification(versiculoDoDia);
@@ -51,9 +52,7 @@ export default function HomeScreen({ navigation }: any) {
         priority: Notifications.AndroidNotificationPriority.HIGH,
       },
       trigger: {
-        type: 'calendar',
-        hour: 7,
-        minute: 0,
+       seconds: 60 * 60 * 24, // a cada 24h
         repeats: true,
       } as Notifications.CalendarTriggerInput,
     });
@@ -63,14 +62,47 @@ export default function HomeScreen({ navigation }: any) {
         throw new Error('Function not implemented.');
     }
 
+
+async function salvarVersiculoNoHistorico(versiculo: string) {
+  try {
+    const hoje = new Date().toISOString().split('T')[0]; // formato: 'YYYY-MM-DD'
+    const historicoAtual = await AsyncStorage.getItem('historico');
+    const historico = historicoAtual ? JSON.parse(historicoAtual) : [];
+
+    // Verifica se já existe um versículo salvo para hoje
+    const jaSalvoHoje = historico.some((item: { data: string }) =>
+      item.data.startsWith(hoje)
+    );
+
+    if (!jaSalvoHoje) {
+      historico.push({ versiculo, data: new Date().toISOString() });
+      await AsyncStorage.setItem('historico', JSON.stringify(historico));
+    }
+  } catch (error) {
+    console.error('Erro ao salvar no histórico:', error);
+  }
+}
+async function excluirVersiculoDoHistorico(index: number) {
+  try {
+    const historicoAtual = await AsyncStorage.getItem('historico');
+    const historico = historicoAtual ? JSON.parse(historicoAtual) : [];
+
+    historico.splice(index, 1); // Remove o item na posição `index`
+
+    await AsyncStorage.setItem('historico', JSON.stringify(historico));
+  } catch (error) {
+    console.error('Erro ao excluir versículo do histórico:', error);
+  }
+}
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>📖 BibliaNot</Text>
-       <Button title="Testar Notificação" onPress={enviarNotificacaoTeste} />
-        <Button
+    
+        <Button 
         title="Ver Histórico"
         onPress={() => navigation.navigate('Histórico')}
-        color="#6a4c93"
+        color="#000"
       />
     </SafeAreaView>
   );
@@ -88,7 +120,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
-    color: '#6a4c93',
+    color: '#000',
   },
   versiculo: {
     fontSize: 22,

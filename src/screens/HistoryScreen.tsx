@@ -14,18 +14,30 @@ export default function HistoryScreen({ navigation }: any) {
     const historico = historicoString ? JSON.parse(historicoString) : [];
     setHistorico(historico);
   }
+async function remover(index: number) {
+    await excluirVersiculoDoHistorico(index);
+    carregarHistorico(); // Atualiza lista após remoção
+  }
 
+  async function excluirVersiculoDoHistorico(index: number) {
+    const historicoAtual = await AsyncStorage.getItem('historico');
+    const historico = historicoAtual ? JSON.parse(historicoAtual) : [];
+
+    historico.splice(index, 1);
+    await AsyncStorage.setItem('historico', JSON.stringify(historico));
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.title}>📜 Histórico de Versículos</Text>
       <FlatList
         data={historico}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.data}>{item.data}</Text>
-            <Text style={styles.texto}>{item.texto}</Text>
-          </View>
+        renderItem={({ item, index }) => (
+          <Text style={styles.item}>
+            
+            📖 {item.versiculo}{"\n"}📅 {new Date(item.data).toLocaleDateString()}
+             <Button title="Apagar"  color={'#000'} onPress={() => remover(index)} />
+          </Text>
           
         )}
       />
@@ -35,31 +47,8 @@ export default function HistoryScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff8f0',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#6a4c93',
-  },
-  item: {
-    backgroundColor: '#fdf6e3',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  data: {
-    fontSize: 14,
-    color: '#999',
-    marginBottom: 5,
-  },
-  texto: {
-    fontSize: 18,
-    color: '#333',
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#ffffff' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#000' },
+  item: { marginBottom: 15, padding: 10, backgroundColor: '#000', borderRadius: 8 },
+  versiculo: { fontSize: 16, marginBottom: 5, color: '#333' },
 });
