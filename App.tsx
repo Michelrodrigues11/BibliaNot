@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import HomeScreen from './src/screens/HomeScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import DevocionaisScreen from './src/screens/DevocionaisScreen';
+import MateriaisScreen from './src/screens/MateriaisScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -19,7 +20,7 @@ export default function App() {
         <Stack.Screen name="BibliaNot" component={HomeScreen} />
         <Stack.Screen name="Histórico" component={HistoryScreen} />
         <Stack.Screen name="Devocionais" component={DevocionaisScreen} />
-
+        <Stack.Screen name="Materiais" component={MateriaisScreen} />
         
       </Stack.Navigator>
     </NavigationContainer>

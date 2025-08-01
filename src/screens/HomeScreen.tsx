@@ -131,7 +131,19 @@ export default function HomeScreen({ navigation }: any) {
           Histórico
         </Text>
       </TouchableOpacity>
-
+<TouchableOpacity
+        onPress={() => navigation.navigate('Materiais')}
+        style={{
+          backgroundColor: '#000',
+          padding: 12,
+          borderRadius: 10,
+          marginTop: 30,
+        }}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>
+          Materiais de Estudo
+        </Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
